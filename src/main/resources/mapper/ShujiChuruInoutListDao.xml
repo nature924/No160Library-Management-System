@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShujiChuruInoutListDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shuji_churu_inout_id as shujiChuruInoutId
+        ,a.shuji_id as shujiId
+        ,a.shuji_churu_inout_list_number as shujiChuruInoutListNumber
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShujiChuruInoutListView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,shuji.shuji_uuid_number as shujiUuidNumber
+        ,shuji.shuji_name as shujiName
+        ,shuji.shuji_zuozhe as shujiZuozhe
+        ,shuji.shuji_chubanshe as shujiChubanshe
+        ,shuji.shuji_photo as shujiPhoto
+        ,shuji.shuji_types as shujiTypes
+        ,shuji.shujia_types as shujiaTypes
+        ,shuji.shujia_address as shujiaAddress
+        ,shuji.shuji_kucun_number as shujiKucunNumber
+        ,shuji.shuji_clicknum as shujiClicknum
+        ,shuji.shuji_content as shujiContent
+        ,shuji.shuji_delete as shujiDelete
+        ,shujiChuruInout.shuji_churu_inout_uuid_number as shujiChuruInoutUuidNumber
+        ,shujiChuruInout.shuji_churu_inout_name as shujiChuruInoutName
+        ,shujiChuruInout.shuji_churu_inout_types as shujiChuruInoutTypes
+        ,shujiChuruInout.shuji_churu_inout_content as shujiChuruInoutContent
+
+        FROM shuji_churu_inout_list  a
+        left JOIN shuji shuji ON a.shuji_id = shuji.id
+        left JOIN shuji_churu_inout shujiChuruInout ON a.shuji_churu_inout_id = shujiChuruInout.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.shujiChuruInoutId != null and params.shujiChuruInoutId != ''">
+                and (
+                    a.shuji_churu_inout_id = #{params.shujiChuruInoutId}
+                )
+            </if>
+            <if test="params.shujiId != null and params.shujiId != ''">
+                and (
+                    a.shuji_id = #{params.shujiId}
+                )
+            </if>
+            <if test="params.shujiChuruInoutListNumberStart != null and params.shujiChuruInoutListNumberStart != ''">
+                <![CDATA[  and a.shuji_churu_inout_list_number >= #{params.shujiChuruInoutListNumberStart}   ]]>
+            </if>
+            <if test="params.shujiChuruInoutListNumberEnd != null and params.shujiChuruInoutListNumberEnd != ''">
+                <![CDATA[  and a.shuji_churu_inout_list_number <= #{params.shujiChuruInoutListNumberEnd}   ]]>
+            </if>
+             <if test="params.shujiChuruInoutListNumber != null and params.shujiChuruInoutListNumber != ''">
+                and a.shuji_churu_inout_list_number = #{params.shujiChuruInoutListNumber}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断书籍的id不为空 -->
+            <if test=" params.shujiIdNotNull != '' and params.shujiIdNotNull != null and params.shujiIdNotNull != 'null' ">
+                and a.shuji_id IS NOT NULL
+            </if>
+            <if test=" params.shujiUuidNumber != '' and params.shujiUuidNumber != null and params.shujiUuidNumber != 'null' ">
+                and shuji.shuji_uuid_number like CONCAT('%',#{params.shujiUuidNumber},'%')
+            </if>
+            <if test=" params.shujiName != '' and params.shujiName != null and params.shujiName != 'null' ">
+                and shuji.shuji_name like CONCAT('%',#{params.shujiName},'%')
+            </if>
+            <if test=" params.shujiZuozhe != '' and params.shujiZuozhe != null and params.shujiZuozhe != 'null' ">
+                and shuji.shuji_zuozhe like CONCAT('%',#{params.shujiZuozhe},'%')
+            </if>
+            <if test=" params.shujiChubanshe != '' and params.shujiChubanshe != null and params.shujiChubanshe != 'null' ">
+                and shuji.shuji_chubanshe like CONCAT('%',#{params.shujiChubanshe},'%')
+            </if>
+            <if test="params.shujiTypes != null  and params.shujiTypes != ''">
+                and shuji.shuji_types = #{params.shujiTypes}
+            </if>
+
+            <if test="params.shujiaTypes != null  and params.shujiaTypes != ''">
+                and shuji.shujia_types = #{params.shujiaTypes}
+            </if>
+
+            <if test=" params.shujiaAddress != '' and params.shujiaAddress != null and params.shujiaAddress != 'null' ">
+                and shuji.shujia_address like CONCAT('%',#{params.shujiaAddress},'%')
+            </if>
+            <if test="params.shujiKucunNumberStart != null  and params.shujiKucunNumberStart != '' ">
+                <![CDATA[  and shuji.shuji_kucun_number >= #{params.shujiKucunNumberStart}   ]]>
+            </if>
+            <if test="params.shujiKucunNumberEnd != null  and params.shujiKucunNumberEnd != '' ">
+                <![CDATA[  and shuji.shuji_kucun_number <= #{params.shujiKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.shujiKucunNumber != null  and params.shujiKucunNumber != '' ">
+                and shuji.shuji_kucun_number = #{params.shujiKucunNumber}
+            </if>
+            <if test="params.shujiClicknumStart != null  and params.shujiClicknumStart != '' ">
+                <![CDATA[  and shuji.shuji_clicknum >= #{params.shujiClicknumStart}   ]]>
+            </if>
+            <if test="params.shujiClicknumEnd != null  and params.shujiClicknumEnd != '' ">
+                <![CDATA[  and shuji.shuji_clicknum <= #{params.shujiClicknumEnd}   ]]>
+            </if>
+            <if test="params.shujiClicknum != null  and params.shujiClicknum != '' ">
+                and shuji.shuji_clicknum = #{params.shujiClicknum}
+            </if>
+            <if test=" params.shujiContent != '' and params.shujiContent != null and params.shujiContent != 'null' ">
+                and shuji.shuji_content like CONCAT('%',#{params.shujiContent},'%')
+            </if>
+            <if test="params.shujiDeleteStart != null  and params.shujiDeleteStart != '' ">
+                <![CDATA[  and shuji.shuji_delete >= #{params.shujiDeleteStart}   ]]>
+            </if>
+            <if test="params.shujiDeleteEnd != null  and params.shujiDeleteEnd != '' ">
+                <![CDATA[  and shuji.shuji_delete <= #{params.shujiDeleteEnd}   ]]>
+            </if>
+            <if test="params.shujiDelete != null  and params.shujiDelete != '' ">
+                and shuji.shuji_delete = #{params.shujiDelete}
+            </if>
+                <!-- 判断出入库的id不为空 -->
+            <if test=" params.shujiChuruInoutIdNotNull != '' and params.shujiChuruInoutIdNotNull != null and params.shujiChuruInoutIdNotNull != 'null' ">
+                and a.shuji_churu_inout_id IS NOT NULL
+            </if>
+            <if test=" params.shujiChuruInoutUuidNumber != '' and params.shujiChuruInoutUuidNumber != null and params.shujiChuruInoutUuidNumber != 'null' ">
+                and shujiChuruInout.shuji_churu_inout_uuid_number like CONCAT('%',#{params.shujiChuruInoutUuidNumber},'%')
+            </if>
+            <if test=" params.shujiChuruInoutName != '' and params.shujiChuruInoutName != null and params.shujiChuruInoutName != 'null' ">
+                and shujiChuruInout.shuji_churu_inout_name like CONCAT('%',#{params.shujiChuruInoutName},'%')
+            </if>
+            <if test="params.shujiChuruInoutTypes != null  and params.shujiChuruInoutTypes != ''">
+                and shujiChuruInout.shuji_churu_inout_types = #{params.shujiChuruInoutTypes}
+            </if>
+
+            <if test=" params.shujiChuruInoutContent != '' and params.shujiChuruInoutContent != null and params.shujiChuruInoutContent != 'null' ">
+                and shujiChuruInout.shuji_churu_inout_content like CONCAT('%',#{params.shujiChuruInoutContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shujiChuruInout.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shujiChuruInout.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
